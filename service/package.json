@@ -4,5 +4,5 @@
     "description": "TVHeadend webos service",
     "main": "service.js",
     "author": "Jens Willhardt",
-    "license": "BSD"
+    "license": "GPL-3.0-only"
 }

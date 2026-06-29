@@ -19,20 +19,7 @@ const ChannelSettings = (props: {
 
     const handleTextChange = (event: { value: number }) => {
         updateAutomaticUnmount();
-
-        // enable new track
-        if (props.textTracks) {
-            for (let i = 0; i < props.textTracks.length; i++) {
-                // const textTrack = props.textTracks[i];
-                // textTrack.enabled = (event.value === i);
-            }
-        }
         setSelectedTextTrack(event.value);
-
-        // TODO: save selected text track index for channel
-        // localStorage.setItem(props.channelName, event.value);
-
-        // do not pass this event further
         return false;
     };
 
@@ -72,8 +59,6 @@ const ChannelSettings = (props: {
                 break;
         }
 
-        // pass unhandled events to parent
-        if (!event.isPropagationStopped) return event;
     };
 
     const setSelectedAudioTrack = (index: number) => {
@@ -97,26 +82,25 @@ const ChannelSettings = (props: {
         focus();
 
         if (props.audioTracks) {
+            const tracks: string[] = [];
             for (let i = 0; i < props.audioTracks.length; i++) {
-                const audioTrack = props.audioTracks[i];
-                setAudioTracksDisplay((audioTracksDisplay) => [...audioTracksDisplay, audioTrack.language]);
-                audioTrack.enabled && setSelectedAudioTrack(i);
+                tracks.push(props.audioTracks[i].language);
+                if (props.audioTracks[i].enabled) setSelectedAudioTrack(i);
             }
+            setAudioTracksDisplay(tracks);
         }
 
         if (props.textTracks) {
+            const tracks: string[] = [];
             for (let i = 0; i < props.textTracks.length; i++) {
-                const textTrack = props.textTracks[i];
-                setTextTracksDisplay((textTracksDisplay) => [...textTracksDisplay, textTrack.language]);
-                // textTrack.enabled && setSelectedTextTrack(i);
+                tracks.push(props.textTracks[i].language);
             }
+            setTextTracksDisplay(tracks);
         }
 
-        // automatic unmount
         updateAutomaticUnmount();
 
         return () => {
-            // clear timeout in case component is unmounted
             timeoutReference.current && clearTimeout(timeoutReference.current);
         };
     }, []);

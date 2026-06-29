@@ -1,67 +1,60 @@
-# ---th0enix Build---
-* Update dependencies
-* Remove background, splash, icons
-* Added extended request timeout & video preload disable (MartB)
-* Right key opens Menu in TV-State (Special non-colorbutton remotes)
-
 # webos-tvheadend
-* This is a WebOS Client for TVHeadend
-* It can currently only be installed using the Developer App or Homebrew
-* The design is similiar to the famous Media Center Kodi
-* It is tested on WebOS 3,4 and 5
-* It uses react but most components use the canvas 2d api to improve performance on older TVs
 
-## Setup
-![Setup](screenshots/setup_verification.png?raw=true "Setup Verification")
-## Channel list
-![Channel List](screenshots/channellist.png?raw=true "Channel List")
-## Channel list with details
-![Channel List Details](screenshots/channellist_details.png?raw=true "Channel List Details")
-## EPG
-![EPG](screenshots/epg.png?raw=true "EPG")
-## Current Channel info
-![Infobar](screenshots/infobar.png?raw=true "Infobar")
-## Menu
-![Menü](screenshots/menu.png?raw=true "Menü")
+A WebOS TV client for TVHeadend. Built with React, Enact Sandstone, and the Luna service API.
+
+- Designed for WebOS TV 26
+- Modern glassmorphism UI with React DOM components
+- GPU-accelerated scrolling via CSS transforms
+
+## Features
+
+- Live TV playback via TVHeadend streaming
+- Electronic Program Guide (EPG) with full grid navigation
+- Channel list with current/next event info
+- Recording management: view, play, schedule, cancel, delete
+- Audio/text track selection
+- User authentication (basic and digest: MD5, SHA256)
 
 ## Build
-Normal build without webos running
-* TVGuides.js:getNow() needs to return 1607462851000 as mock timestamp for now
-* TVHDataService:constructor() needs to use MockServiceAdapter instead of LunaServiceAdapter
-```s
-npm run start
-```
-* Device Setup
-```s
-name      deviceinfo                    connection  profile
---------  ----------------------------  ----------  -------
-emulator  developer@127.0.0.1:6622      ssh         tv
-tv        prisoner@192.168.178.22:9922  ssh         tv
+
+```sh
+npm install
+npm run build
 ```
 
-Deployment to emulator/webos
-```s
+## Deploy
+
+Requires [webOS TV CLI (ares-tools)](https://webostv.developer.lge.com/develop/tools/cli-introduction).
+
+### Emulator
+```sh
 npm run webos:emu
-npm run webos:tv
-
-# for debugging attach to device
-ares-inspect -d emulator com.willinux.tvh.app --open
-ares-inspect -d tv com.willinux.tvh.app --open
 ```
-## Features
-- EPG
-- Channel List
-- Record live tv or plan recordings using EPG
-- Play and Manage recordings
-- User Authentication: basic and digest (md5, sha256)
 
-## WebOS
-Useful links for video playback using webos
+### TV
+```sh
+npm run webos:tv
+```
 
-* http://webostv.developer.lge.com/develop/app-developer-guide/resuming-media-quickly-mediaoption/
-* http://webostv.developer.lge.com/api/web-api/mediaoption-parameter/
+### Debug
+```sh
+npm run inspect:emu
+npm run inspect:tv
+```
 
-## tvheadend
+## Development
 
-#### API documentation
-https://github.com/dave-p/TVH-API-docs/wiki
+```sh
+npm start
+```
+
+## Project Structure
+
+- `src/` — application source (React, TypeScript)
+- `service/` — `com.tvh.app.proxy` Luna service for TVHeadend communication
+- `build/` — output directory for `ares-package`
+- `vite.config.ts` — bundler config with es2015 target and ilib compatibility transforms
+
+## License
+
+GNU General Public License v3

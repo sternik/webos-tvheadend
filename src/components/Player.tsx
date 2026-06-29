@@ -118,7 +118,9 @@ const Player = () => {
     };
 
     const cancelRecording = (event: EPGEvent) => {
-        if (!event) return;
+        if (!event) {
+            return;
+        }
         tvhDataService?.cancelRec(
             event,
             (newrecordings) => {

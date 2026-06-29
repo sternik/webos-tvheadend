@@ -946,6 +946,22 @@ body {
     top: 0;
     left: 0;
     z-index: 12;
+    pointer-events: none;
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 40px;
+    box-sizing: border-box;
+}
+
+.ch-number {
+    font-size: 130px;
+    font-weight: 700;
+    background: linear-gradient(180deg, rgba(200, 200, 200, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(200, 200, 200, 1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    line-height: 1;
 }
 
 .channelSettings {
