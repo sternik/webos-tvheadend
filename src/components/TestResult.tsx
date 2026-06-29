@@ -1,4 +1,4 @@
-import BodyText from '@enact/moonstone/BodyText';
+import BodyText from '@enact/sandstone/BodyText';
 import React from 'react';
 import TestResultItem from './TestResultItem';
 import { TestResults } from '../utils/TVHSettingsTest';

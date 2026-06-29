@@ -1,7 +1,6 @@
-import React from 'react';
-import Dialog from '@enact/moonstone/Dialog';
-import BodyText from '@enact/moonstone/BodyText';
-import Button from '@enact/moonstone/Button';
+import Alert from '@enact/sandstone/Alert';
+import BodyText from '@enact/sandstone/BodyText';
+import Button from '@enact/sandstone/Button';
 import { forProp, handle, oneOf } from '@enact/core/handle';
 import kind from '@enact/core/kind';
 
@@ -32,7 +31,7 @@ const DialogPopup = (props: {
     });
 
     return (
-        <Dialog
+        <Alert
             open={true}
             title={props.title}
             buttons={
@@ -43,7 +42,7 @@ const DialogPopup = (props: {
             }
         >
             <BodyText>{props.subtitle}</BodyText>
-        </Dialog>
+        </Alert>
     );
 };
 

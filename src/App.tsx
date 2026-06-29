@@ -249,7 +249,7 @@ const App = () => {
 
     return (
         <div className="app" onKeyDown={handleKeyPress}>
-            {menuState && <Menu items={menu} unmount={() => setAppViewState(AppViewState.TV)} />}
+            {menuState && <Menu items={menu} unmount={() => { setMenuState(false); setAppViewState(AppViewState.TV); }} />}
             {appViewState === AppViewState.SETTINGS && <TVHSettings unmount={() => setAppViewState(AppViewState.TV)} />}
             {appViewState === AppViewState.TV && isChannelsRetrieved && <TV />}
             {appViewState === AppViewState.RECORDINGS && <Player />}

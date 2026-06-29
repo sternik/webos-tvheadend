@@ -1,8 +1,8 @@
-import Button from '@enact/moonstone/Button';
-import Spinner from '@enact/moonstone/Spinner';
-import Input from '@enact/moonstone/Input';
-import { Header, Panel } from '@enact/moonstone/Panels';
-import Heading from '@enact/moonstone/Heading';
+import Button from '@enact/sandstone/Button';
+import Spinner from '@enact/sandstone/Spinner';
+import Input from '@enact/sandstone/Input';
+import { Header, Panel } from '@enact/sandstone/Panels';
+import Heading from '@enact/sandstone/Heading';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import TVHDataService, { TVHDataServiceParms } from '../services/TVHDataService';
 import TVHSettingsTest, { TestResults } from '../utils/TVHSettingsTest';

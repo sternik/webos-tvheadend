@@ -1,59 +1,40 @@
 {
     "name": "webos-tvheadend",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "private": true,
-    "homepage": "./",
     "dependencies": {
-        "@enact/moonstone": "^4.5.6",
+        "@enact/core": "^4.9.8",
+        "@enact/sandstone": "^2.9.13",
         "@procot/webostv": "git://github.com/procot/webostv.git",
         "core-js": "^3.41.0",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "react-scripts": "5.0.1",
         "regenerator-runtime": "^0.14.1"
     },
     "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject",
-        "webos:emu": "ares-package build service && ares-install com.willinux.tvh.app_${npm_package_version}_all.ipk -d emulator && ares-launch com.willinux.tvh.app -d emulator",
-        "webos:emu-rm": "ares-install -d emulator --remove com.willinux.tvh.app",
-        "webos:tv": "ares-package build service && ares-install com.willinux.tvh.app_${npm_package_version}_all.ipk -d tv2 && ares-launch com.willinux.tvh.app -d tv2",
-        "webos:tv-rm": "ares-install -d tv --remove com.willinux.tvh.app",
-        "inspect:emu": "ares-inspect -d emulator com.willinux.tvh.app --open",
-        "inspect:tv": "ares-inspect -d tv com.willinux.tvh.app --open"
-    },
-    "eslintConfig": {
-        "extends": [
-            "react-app"
-        ],
-        "rules": {
-            "@typescript-eslint/no-explicit-any": ["off"]
-        }
-    },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
+        "start": "vite",
+        "build": "vite build",
+        "webos:emu": "ares-package build service && ares-install com.tvh.app_${npm_package_version}_all.ipk -d emulator && ares-launch com.tvh.app -d emulator",
+        "webos:emu-rm": "ares-install -d emulator --remove com.tvh.app",
+        "webos:tv": "ares-package build service && ares-install com.tvh.app_${npm_package_version}_all.ipk -d tv && ares-launch com.tvh.app -d tv",
+        "webos:tv-rm": "ares-install -d tv --remove com.tvh.app",
+        "webos:sim": "ares-launch -s 26 -sp \"/Applications/webOS_TV_26_Simulator_1.5.0\" build",
+        "webos:sim:dev": "npm run build && npm run webos:sim",
+        "inspect:emu": "ares-inspect -d emulator com.tvh.app --open",
+        "inspect:tv": "ares-inspect -d tv com.tvh.app --open"
     },
     "devDependencies": {
-        "@babel/plugin-transform-private-property-in-object": "^7.22.11",
         "@types/react": "^18.2.21",
         "@types/react-dom": "^18.2.7",
         "@typescript-eslint/eslint-plugin": "^6.7.0",
         "@typescript-eslint/parser": "^6.7.0",
+        "@vitejs/plugin-react": "^6.0.3",
         "eslint-config-prettier": "^9.0.0",
         "eslint-plugin-prettier": "^5.0.0",
         "eslint-plugin-react": "^7.33.2",
         "eslint-plugin-react-hooks": "^5.0.0-canary-bbc8530ed-20230912",
-        "prettier": "^3.0.3"
+        "less": "^4.6.7",
+        "prettier": "^3.0.3",
+        "vite": "^8.1.0"
     }
 }

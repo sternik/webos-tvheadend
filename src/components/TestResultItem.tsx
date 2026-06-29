@@ -1,4 +1,4 @@
-import Icon from '@enact/moonstone/Icon';
+import Icon from '@enact/sandstone/Icon';
 import React from 'react';
 import { ResultItem } from '../utils/TVHSettingsTest';
 

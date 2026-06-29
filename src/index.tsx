@@ -1,11 +1,10 @@
-import 'core-js/stable'; // required for webOS 3.0 support
-import 'regenerator-runtime/runtime'; // required for webOS 3.0 support
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 
-import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import kind from '@enact/core/kind';
-import MoonstoneDecorator from '@enact/moonstone/MoonstoneDecorator';
+import ThemeDecorator from '@enact/sandstone/ThemeDecorator';
 import { AppContextProvider } from './AppContext';
 
 const AppBase = kind({
@@ -17,11 +16,9 @@ const AppBase = kind({
     )
 });
 
-const DecoratedApp = MoonstoneDecorator(AppBase);
+const DecoratedApp = ThemeDecorator(AppBase);
 
 ReactDOM.render(
-    <React.StrictMode>
-        <DecoratedApp />
-    </React.StrictMode>,
+    <DecoratedApp />,
     document.getElementById('root')
 );

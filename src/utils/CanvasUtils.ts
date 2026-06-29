@@ -64,7 +64,7 @@ export default class CanvasUtils {
             index = newIndex;
             // cutoff leading space
             if (line.startsWith(' ')) {
-                line = line.substring(1, line.length - 1);
+                line = line.substring(1);
             }
             // if we reached the end print out the line
             if (index === text.length) {
@@ -100,12 +100,12 @@ export default class CanvasUtils {
         options: WriteTextOptions = {}
     ) {
         // set default options
-        options.fontFace = options.fontFace || 'Moonstone';
+        options.fontFace = options.fontFace || 'MuseoSans';
         options.textAlign = options.textAlign || 'left';
         options.textBaseline = options.textBaseline || 'middle';
         options.fillStyle = options.fillStyle || '#cccccc';
         options.fontSize = options.fontSize || 20;
-        options.isBold = options.isBold !== undefined || false;
+        options.isBold = options.isBold !== undefined ? options.isBold : false;
         options.maxWidth = options.maxWidth || undefined;
 
         // remember old text style

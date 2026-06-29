@@ -8,19 +8,16 @@ const ChannelListDetails = (props: {
     isRecording: (event: EPGEvent) => boolean;
     currentEvent?: EPGEvent;
     epgChannel?: EPGChannel;
-    nextEvents: EPGEvent[]; // next events in line
-    nextSameEvents: EPGEvent[]; // next events with same title
+    nextEvents: EPGEvent[];
+    nextSameEvents: EPGEvent[];
 }) => {
     const { locale } = useContext(AppContext);
-    const channelListDetailsWrapper = useRef<HTMLDivElement>(null);
+    const ref = useRef<HTMLDivElement>(null);
 
     const formatTime = (event: EPGEvent | undefined, date?: boolean): string | undefined => {
-        if (!event) {
-            return undefined;
-        }
+        if (!event) return undefined;
         const start = event.getStart();
         const end = event.getEnd();
-
         if (date) {
             return EPGUtils.toDateString(start, locale);
         } else {
@@ -29,49 +26,46 @@ const ChannelListDetails = (props: {
     };
 
     const getEventList = (events: EPGEvent[], withDate?: boolean) => {
-        const itemList = [];
-
-        for (let i = 0; i < events.length; i++) {
-            itemList.push(
-                <li key={i}>
-                    {withDate && <div className="listItemDate">{formatTime(events[i], true)}</div>}
-                    <div className="listItemTime">{formatTime(events[i])}</div>
-                    <div className="listItemTitle">
-                        {props.isRecording(events[i]) && <div className="rec"></div>}
-                        {events[i].getTitle()}
-                    </div>
-                </li>
-            );
-        }
-
-        return itemList;
+        return events.map((event, i) => (
+            <li key={i} className="cld-listItem">
+                {withDate && <span className="cld-listDate">{formatTime(event, true)}</span>}
+                <span className="cld-listTime">{formatTime(event)}</span>
+                <span className="cld-listTitle">
+                    {props.isRecording(event) && <span className="cld-recDot" />}
+                    {event.getTitle()}
+                </span>
+            </li>
+        ));
     };
 
+    const title = props.currentEvent?.getTitle() || 'No Information';
+    const sub = props.currentEvent?.getSubTitle() || '';
+    const desc = props.currentEvent?.getDescription() || '';
+
     return (
-        <div
-            id="channel-list-details"
-            ref={channelListDetailsWrapper}
-            tabIndex={-1}
-            className="channelListDetails"
-            style={{ display: 'block' }}
-        >
-            <div>
-                <div className="timeframe">
-                    {props.currentEvent && formatTime(props.currentEvent, true) + ' ' + formatTime(props.currentEvent)}
+        <div ref={ref} tabIndex={-1} className="channelListDetails">
+            <div className="cld-header">
+                <div className="cld-timeframe">
+                    {props.currentEvent && formatTime(props.currentEvent, true) + '  ' + formatTime(props.currentEvent)}
                 </div>
-                <div className="now">{EPGUtils.toTimeString(EPGUtils.getNow(), locale)}</div>
+                <div className="cld-now">{EPGUtils.toTimeString(EPGUtils.getNow(), locale)}</div>
             </div>
-            <div className="title">
-                {props.currentEvent && props.isRecording(props.currentEvent) && <div className="rec"></div>}
-                {props.currentEvent?.getTitle() || 'No Information'}
+
+            <div className="cld-title">
+                {props.currentEvent && props.isRecording(props.currentEvent) && <span className="cld-recDot" />}
+                {title}
             </div>
-            <div className="subTitle">{props.currentEvent?.getSubTitle() || ''}</div>
-            <div className="desc">{props.currentEvent?.getDescription() || ''}</div>
-            <div className="next">
-                <div className="separator"></div>
-                <ul className="list">{getEventList(props.nextEvents)}</ul>
-            </div>
-            <div className="nextSameTitle">{getEventList(props.nextSameEvents, true)}</div>
+
+            {sub && <div className="cld-subtitle">{sub}</div>}
+
+            <div className="cld-desc">{desc}</div>
+
+            {props.nextEvents.length > 0 && (
+                <div className="cld-next">
+                    <div className="cld-nextLabel">Następne</div>
+                    <ul className="cld-list">{getEventList(props.nextEvents)}</ul>
+                </div>
+            )}
         </div>
     );
 };

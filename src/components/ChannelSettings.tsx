@@ -1,5 +1,5 @@
-import Icon from '@enact/moonstone/Icon';
-import Picker from '@enact/moonstone/Picker';
+import Icon from '@enact/sandstone/Icon';
+import Picker from '@enact/sandstone/Picker';
 import React, { useEffect, useRef, useState } from 'react';
 import StorageHelper from '../utils/StorageHelper';
 

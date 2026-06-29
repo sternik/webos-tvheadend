@@ -9,8 +9,6 @@ import AppContext, { AppVisibilityState } from '../AppContext';
 import '../styles/app.css';
 import StorageHelper from '../utils/StorageHelper';
 import EPGEvent from '../models/EPGEvent';
-//import Spinner from '@enact/moonstone/Spinner';
-//import { Panel } from '@enact/moonstone/Panels';
 import { AppViewState } from '../App';
 
 export enum State {
@@ -95,6 +93,7 @@ const TV = () => {
                     event.stopPropagation();
                 }
                 break;
+            case 37: // left arrow -> show epg
             case 406: // blue button show epg
             case 66: // keyboard 'b'
                 event.stopPropagation();
@@ -426,7 +425,8 @@ const TV = () => {
             {state === State.CHANNEL_LIST && (
                 <ChannelList
                     toggleRecording={(event: EPGEvent, callback: () => unknown) => toggleRecording(event, callback)}
-                    unmount={() => setState(State.CHANNEL_INFO)}
+                    onBack={() => setState(State.TV)}
+                    onSelect={() => setState(State.CHANNEL_INFO)}
                 />
             )}
 
