@@ -8,7 +8,6 @@ const TIME_VIEWPORT_MILLIS = 2 * 60 * 60 * 1000;
 const TIME_LABEL_SPACING_MILLIS = 30 * 60 * 1000;
 const CHANNEL_ROW_HEIGHT = 100;
 const CHANNEL_SIDEBAR_WIDTH = 200;
-const TIME_HEADER_HEIGHT = 80;
 const DETAILS_HEIGHT = 260;
 const VISIBLE_CHANNELS = 8;
 const VERTICAL_SCROLL_TOP_PADDING = 3;
@@ -30,14 +29,13 @@ const TVGuide = (props: {
     const scrollXRef = useRef(0);
     const scrollYRef = useRef(0);
     const focusedChannelRef = useRef(currentChannelPosition);
+    const focusedEventRef = useRef<EPGEvent | null>(null);
 
     const viewportWidth = window.innerWidth - CHANNEL_SIDEBAR_WIDTH;
-    const viewportHeight = window.innerHeight - TIME_HEADER_HEIGHT - DETAILS_HEIGHT;
+    const viewportHeight = window.innerHeight - DETAILS_HEIGHT;
     const channelCount = epgData ? epgData.getChannelCount() : 0;
     const millisPerPixel = TIME_VIEWPORT_MILLIS / viewportWidth;
-    const timeBase = EPGUtils.getNow() - TIME_VIEWPORT_MILLIS / 4;
-    const timeLower = timeBase + scrollXRef.current * millisPerPixel;
-    const timeUpper = timeLower + TIME_VIEWPORT_MILLIS;
+    const timeBase = EPGUtils.getNow() - TIME_VIEWPORT_MILLIS / 3;
 
     const doClose = useCallback(() => {
         if (closing) return;
@@ -45,7 +43,7 @@ const TVGuide = (props: {
         setTimeout(() => props.unmount(), 300);
     }, [closing, props.unmount]);
 
-    const getXFromTime = (time: number) => (time - timeLower) / millisPerPixel;
+    const getXFromTime = (time: number) => (time - timeBase) / millisPerPixel;
 
     const getVisibleChannels = () => {
         const first = Math.max(0, Math.floor(scrollYRef.current / CHANNEL_ROW_HEIGHT) - 1);
@@ -60,10 +58,12 @@ const TVGuide = (props: {
     const getVisibleEvents = (channelPos: number) => {
         const events = epgData?.getEvents(channelPos);
         if (!events) return [];
+        const tl = timeBase + scrollXRef.current * millisPerPixel;
+        const tu = tl + TIME_VIEWPORT_MILLIS;
         const result: EPGEvent[] = [];
         for (const event of events) {
-            if (event.getEnd() < timeLower) continue;
-            if (event.getStart() > timeUpper) break;
+            if (event.getEnd() < tl) continue;
+            if (event.getStart() > tu) break;
             result.push(event);
         }
         return result;
@@ -84,111 +84,79 @@ const TVGuide = (props: {
 
     const scrollToEvent = (event: EPGEvent) => {
         const eventCenter = (event.getStart() + event.getEnd()) / 2;
-        const viewCenter = timeLower + TIME_VIEWPORT_MILLIS / 2;
-        const diff = eventCenter - viewCenter;
-        if (Math.abs(diff) > TIME_VIEWPORT_MILLIS / 4) {
-            const newScrollX = scrollXRef.current + diff / millisPerPixel;
-            scrollXRef.current = Math.max(0, newScrollX);
-            setScrollX(scrollXRef.current);
-        }
+        const eventX = (eventCenter - timeBase) / millisPerPixel;
+        const newScrollX = eventX - viewportWidth / 2;
+        scrollXRef.current = newScrollX;
+        setScrollX(newScrollX);
     };
 
-    const handleKeyPress = (event: React.KeyboardEvent) => {
-        const keyCode = event.keyCode;
+    const getChannelEvents = (pos: number) => epgData?.getEvents(pos) ?? [];
 
-        switch (keyCode) {
-            case 38: {
-                event.stopPropagation();
-                const newPos = focusedChannelRef.current > 0 ? focusedChannelRef.current - 1 : channelCount - 1;
-                focusedChannelRef.current = newPos;
-                setFocusedChannel(newPos);
-                scrollToChannel(newPos);
-                const ev = epgData?.getEventAtTimestamp(newPos, EPGUtils.getNow());
-                setFocusedEvent(ev ?? null);
-                break;
-            }
-            case 40: {
-                event.stopPropagation();
-                const newPos = focusedChannelRef.current < channelCount - 1 ? focusedChannelRef.current + 1 : 0;
-                focusedChannelRef.current = newPos;
-                setFocusedChannel(newPos);
-                scrollToChannel(newPos);
-                const ev = epgData?.getEventAtTimestamp(newPos, EPGUtils.getNow());
-                setFocusedEvent(ev ?? null);
-                break;
-            }
-            case 37: {
-                event.stopPropagation();
-                const ch = focusedChannelRef.current;
-                const events = epgData?.getEvents(ch);
-                if (!events || events.length === 0) break;
-                const now = EPGUtils.getNow();
-                let idx = events.findIndex(e => e.getStart() <= now && e.getEnd() > now);
-                if (focusedEvent) {
-                    idx = events.findIndex(e => e.getId() === focusedEvent.getId());
-                    idx = Math.max(0, idx - 1);
-                }
-                const ev = events[idx] || events[0];
-                setFocusedEvent(ev);
-                scrollToEvent(ev);
-                break;
-            }
-            case 39: {
-                event.stopPropagation();
-                const ch = focusedChannelRef.current;
-                const events = epgData?.getEvents(ch);
-                if (!events || events.length === 0) break;
-                let idx = 0;
-                if (focusedEvent) {
-                    idx = events.findIndex(e => e.getId() === focusedEvent.getId());
-                    idx = Math.min(events.length - 1, idx + 1);
-                } else {
-                    const now = EPGUtils.getNow();
-                    idx = events.findIndex(e => e.getStart() <= now && e.getEnd() > now);
-                    if (idx < 0) idx = 0;
-                }
-                const ev = events[idx] || events[0];
-                setFocusedEvent(ev);
-                scrollToEvent(ev);
-                break;
-            }
-            case 13: {
-                event.stopPropagation();
-                setCurrentChannelPosition(focusedChannelRef.current);
-                doClose();
-                break;
-            }
-            case 403: {
-                event.stopPropagation();
-                if (focusedEvent) {
-                    props.toggleRecording(focusedEvent, () => setTick(t => t + 1));
-                }
-                break;
-            }
-            case 461:
-            case 406:
-            case 66:
-                event.stopPropagation();
-                doClose();
-                break;
-            default:
-                console.log('EPG-keyPressed:', keyCode);
+    const moveUp = () => {
+        if (channelCount === 0) return;
+        const newPos = focusedChannelRef.current > 0 ? focusedChannelRef.current - 1 : channelCount - 1;
+        focusedChannelRef.current = newPos;
+        setFocusedChannel(newPos);
+        scrollToChannel(newPos);
+        const ev = epgData?.getEventAtTimestamp(newPos, EPGUtils.getNow());
+        focusedEventRef.current = ev ?? null;
+        setFocusedEvent(ev ?? null);
+    };
+
+    const moveDown = () => {
+        if (channelCount === 0) return;
+        const newPos = focusedChannelRef.current < channelCount - 1 ? focusedChannelRef.current + 1 : 0;
+        focusedChannelRef.current = newPos;
+        setFocusedChannel(newPos);
+        scrollToChannel(newPos);
+        const ev = epgData?.getEventAtTimestamp(newPos, EPGUtils.getNow());
+        focusedEventRef.current = ev ?? null;
+        setFocusedEvent(ev ?? null);
+    };
+
+    const moveLeft = () => {
+        const events = getChannelEvents(focusedChannelRef.current);
+        if (events.length === 0) return;
+        const now = EPGUtils.getNow();
+        const cur = focusedEventRef.current
+            ? events.findIndex(e => e.getId() === focusedEventRef.current!.getId())
+            : events.findIndex(e => e.getStart() <= now && e.getEnd() > now);
+        const idx = cur > 0 ? cur - 1 : 0;
+        const ev = events[idx];
+        focusedEventRef.current = ev;
+        setFocusedEvent(ev);
+        scrollToEvent(ev);
+    };
+
+    const moveRight = () => {
+        const events = getChannelEvents(focusedChannelRef.current);
+        if (events.length === 0) return;
+        let idx = 0;
+        if (focusedEventRef.current) {
+            const cur = events.findIndex(e => e.getId() === focusedEventRef.current!.getId());
+            idx = cur < events.length - 1 ? cur + 1 : events.length - 1;
+        }
+        const ev = events[idx];
+        focusedEventRef.current = ev;
+        setFocusedEvent(ev);
+        scrollToEvent(ev);
+    };
+
+    const handleSelect = () => {
+        setCurrentChannelPosition(focusedChannelRef.current);
+        doClose();
+    };
+
+    const handleToggleRec = () => {
+        if (focusedEventRef.current) {
+            props.toggleRecording(focusedEventRef.current, () => setTick(t => t + 1));
         }
     };
 
     const handleScrollWheel = (event: React.WheelEvent) => {
         event.stopPropagation();
-        if (event.deltaY < 0) {
-            const newPos = focusedChannelRef.current > 0 ? focusedChannelRef.current - 1 : channelCount - 1;
-            focusedChannelRef.current = newPos;
-            setFocusedChannel(newPos);
-            scrollToChannel(newPos);
-        } else {
-            const newPos = focusedChannelRef.current < channelCount - 1 ? focusedChannelRef.current + 1 : 0;
-            focusedChannelRef.current = newPos;
-            setFocusedChannel(newPos);
-            scrollToChannel(newPos);
-        }
+        if (event.deltaY < 0) moveUp();
+        else moveDown();
         wrapperRef.current?.focus();
     };
 
@@ -202,13 +170,27 @@ const TVGuide = (props: {
     useEffect(() => {
         scrollToChannel(focusedChannelRef.current);
         const ev = epgData?.getEventAtTimestamp(focusedChannelRef.current, EPGUtils.getNow());
+        focusedEventRef.current = ev ?? null;
         setFocusedEvent(ev ?? null);
         focus();
 
         const handleWindowKeyDown = (e: KeyboardEvent) => {
-            if (e.keyCode === 461 || e.keyCode === 66 || e.keyCode === 406) {
+            let handled = true;
+            switch (e.keyCode) {
+                case 38: moveUp(); break;
+                case 40: moveDown(); break;
+                case 37: moveLeft(); break;
+                case 39: moveRight(); break;
+                case 13: handleSelect(); break;
+                case 403: handleToggleRec(); break;
+                case 461:
+                case 406:
+                case 66: handleSelect(); break;
+                default: handled = false;
+            }
+            if (handled) {
                 e.stopPropagation();
-                doClose();
+                e.preventDefault();
             }
         };
         window.addEventListener('keydown', handleWindowKeyDown, true);
@@ -224,19 +206,18 @@ const TVGuide = (props: {
     const now = EPGUtils.getNow();
     const nowX = getXFromTime(now);
     const timeLabels: number[] = [];
-    const start = Math.ceil(timeLower / TIME_LABEL_SPACING_MILLIS) * TIME_LABEL_SPACING_MILLIS;
-    for (let t = start; t <= timeUpper; t += TIME_LABEL_SPACING_MILLIS) {
+    const start = Math.ceil(timeBase / TIME_LABEL_SPACING_MILLIS) * TIME_LABEL_SPACING_MILLIS;
+    for (let t = start; t <= timeBase + TIME_VIEWPORT_MILLIS; t += TIME_LABEL_SPACING_MILLIS) {
         timeLabels.push(t);
     }
 
-    const ch = focusedEvent ? epgData.getChannel(focusedChannel) : null;
+    const focusedChData = focusedEvent ? epgData.getChannel(focusedChannel) : null;
     const isRec = focusedEvent ? epgData.isRecording(focusedEvent) : false;
 
     return (
         <div
             ref={wrapperRef}
             tabIndex={-1}
-            onKeyDown={handleKeyPress}
             onWheel={handleScrollWheel}
             onClick={handleClick}
             className={`epg${closing ? ' closing' : ''}`}
@@ -244,7 +225,7 @@ const TVGuide = (props: {
             {/* Time header */}
             <div className="epg-time-header">
                 <div className="epg-day-label">
-                    {EPGUtils.getWeekdayName(timeLower, locale)}
+                    {EPGUtils.getWeekdayName(timeBase + scrollX * millisPerPixel, locale)}
                 </div>
                 <div className="epg-time-labels" style={{ transform: `translateX(${-scrollX}px)` }}>
                     {timeLabels.map(t => (
@@ -313,16 +294,16 @@ const TVGuide = (props: {
                             const events = getVisibleEvents(pos);
 
                             return events.map(ev => {
-                                const isCurrent = ev.isCurrent();
-                                const isFocused = focusedEvent?.getId() === ev.getId();
-                                const isRec = epgData.isRecording(ev);
+                                const isEventCurrent = ev.isCurrent();
+                                const isEventFocused = focusedEvent?.getId() === ev.getId();
+                                const isEventRec = epgData.isRecording(ev);
                                 const left = getXFromTime(ev.getStart()) + CHANNEL_SIDEBAR_WIDTH;
                                 const width = Math.max(2, (ev.getEnd() - ev.getStart()) / millisPerPixel);
 
                                 let className = 'epg-event';
-                                if (isCurrent) className += ' current';
-                                if (isFocused) className += ' focused';
-                                if (isRec) className += ' recording';
+                                if (isEventCurrent) className += ' current';
+                                if (isEventFocused) className += ' focused';
+                                if (isEventRec) className += ' recording';
 
                                 return (
                                     <div
@@ -334,7 +315,7 @@ const TVGuide = (props: {
                                             width: `${width}px`
                                         }}
                                     >
-                                        {isRec && <div className="epg-rec-bar" />}
+                                        {isEventRec && <div className="epg-rec-bar" />}
                                         <span className="epg-event-title">{ev.getTitle()}</span>
                                     </div>
                                 );
@@ -359,8 +340,8 @@ const TVGuide = (props: {
                         <div className="epg-details-left">
                             <div className="epg-details-channel">
                                 {isRec && <span className="epg-rec-dot" />}
-                                <span className="epg-details-ch-name">{ch?.getName()}</span>
-                                <span className="epg-details-ch-num">#{ch?.getChannelID()}</span>
+                                <span className="epg-details-ch-name">{focusedChData?.getName()}</span>
+                                <span className="epg-details-ch-num">#{focusedChData?.getChannelID()}</span>
                             </div>
                             <div className="epg-details-title">{focusedEvent.getTitle()}</div>
                             {focusedEvent.getSubTitle() && (
