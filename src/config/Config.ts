@@ -1,20 +1,16 @@
 import FileServiceAdapter from '../luna/FileServiceAdapter';
 import HttpProxyServiceAdapter from '../luna/HttpProxyServiceAdapter';
 import LunaServiceAdapter from '../luna/LunaServiceAdapter';
-//import MockFileServiceAdapter from '../mock/MockFileServiceAdapter';
-//import MockHttpProxyServiceAdapter from '../mock/MockHttpProxyServiceAdapter';
-//import MockLunaServiceAdapter from '../mock/MockLunaServiceAdapter';
+import MockLunaServiceAdapter from '../mock/MockLunaServiceAdapter';
+import MockHttpProxyServiceAdapter from '../mock/MockHttpProxyServiceAdapter';
+import MockFileServiceAdapter from '../mock/MockFileServiceAdapter';
+
+declare var __MOCK_SERVICE__: boolean;
 
 const Config: Configuration = {
-    // prod config
-    lunaServiceAdapter: new LunaServiceAdapter(),
-    httpProxyServiceAdapter: new HttpProxyServiceAdapter(),
-    fileServiceAdapter: new FileServiceAdapter()
-
-    // mock config
-    // lunaServiceAdapter: new MockLunaServiceAdapter(),
-    // httpProxyServiceAdapter: new MockHttpProxyServiceAdapter(),
-    // fileServiceAdapter: new MockFileServiceAdapter()
+    lunaServiceAdapter: __MOCK_SERVICE__ ? new MockLunaServiceAdapter() : new LunaServiceAdapter(),
+    httpProxyServiceAdapter: __MOCK_SERVICE__ ? new MockHttpProxyServiceAdapter() : new HttpProxyServiceAdapter(),
+    fileServiceAdapter: __MOCK_SERVICE__ ? new MockFileServiceAdapter() : new FileServiceAdapter()
 };
 
 export default Config;

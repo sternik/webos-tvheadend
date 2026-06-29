@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     {
@@ -52,6 +52,7 @@ export default defineConfig({
   },
   define: {
     global: 'globalThis',
+    __MOCK_SERVICE__: mode === 'mock',
   },
   build: {
     outDir: 'build',
@@ -64,4 +65,4 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['ilib'],
   },
-});
+}));

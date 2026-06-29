@@ -19,8 +19,8 @@
         "webos:emu-rm": "ares-install -d emulator --remove com.tvh.app",
         "webos:tv": "ares-package build service && ares-install com.tvh.app_${npm_package_version}_all.ipk -d tv && ares-launch com.tvh.app -d tv",
         "webos:tv-rm": "ares-install -d tv --remove com.tvh.app",
-        "webos:sim": "ares-launch -s 26 -sp \"/Applications/webOS_TV_26_Simulator_1.5.0\" build",
-        "webos:sim:dev": "npm run build && npm run webos:sim",
+        "webos:sim": "vite build --mode mock && ares-launch -s 26 -sp \"/Applications/webOS_TV_26_Simulator_1.5.0\" build",
+        "webos:sim:dev": "npm run webos:sim",
         "inspect:emu": "ares-inspect -d emulator com.tvh.app --open",
         "inspect:tv": "ares-inspect -d tv com.tvh.app --open"
     },
