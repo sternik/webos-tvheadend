@@ -8,20 +8,6 @@ export default class EPGData {
     private channels: EPGChannel[] = [];
     private recordings: EPGEvent[] = [];
 
-    //constructor() {
-    //new MockDataService().getChannels(this.channels);
-    //if (this.data) {
-    /*this.data.forEach((values, key) => {
-                this.channels.push(key);
-                values.forEach((value) => {
-                    this.events.push(value);
-                });
-            });*/
-    //this.channels = this.data;
-    //this.events = Array.from(this.data.values());
-    //}
-    //}
-
     getChannels(): EPGChannel[] {
         return this.channels;
     }
