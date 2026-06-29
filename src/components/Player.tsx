@@ -33,7 +33,6 @@ const Player = () => {
     const textTracksRef = useRef<TextTrackList>();
     const [recordings, setRecordings] = useState<EPGChannelRecording[]>([]);
 
-    //const [isVideoPlaying, setIsVideoPlaying] = useState(false);
     const [state, setState] = useState<State>(State.PLAYER);
 
     const focus = () => tvWrapper.current?.focus();
@@ -166,19 +165,8 @@ const Player = () => {
         const videoElement = getMediaElement();
         if (!videoElement) return;
 
-        // restore selected audio channel from storage
         const audioTracks = videoElement.audioTracks;
         const textTracks = videoElement.textTracks;
-        const currentChannel = getCurrentChannel();
-        if (!currentChannel) return;
-        //const index = StorageHelper.getLastAudioTrackIndex(currentChannel.getName());
-        // if (index && index < audioTracks.length) {
-        //     console.log('restore index %d for channel %s', index, currentChannel.getName());
-        //     for (let i = 0; i < audioTracks.length; i++) {
-        //         // stored track index is already enabled
-        //         audioTracks[i].enabled = i === index;
-        //     }
-        // }
 
         setAudioTracks(audioTracks);
         setTextTracks(textTracks);
@@ -210,23 +198,12 @@ const Player = () => {
         if (!videoElement) return;
 
         resetPlayer(videoElement);
-        //setIsVideoPlaying(false);
-
-        //const options = {
-        //    mediaTransportType: 'URI'
-        //};
-
-        // Convert the created object to JSON string and encode it.
-        //const mediaOption = encodeURI(JSON.stringify(options));
 
         // Add new source element
         const source = document.createElement('source');
 
         // Add attributes to the created source element for media content.
         source.setAttribute('src', dataUrl.toString());
-        //source.setAttribute('type', 'video/mp2t;mediaOption=' + mediaOption);
-        //source.setAttribute('src', 'https://www.w3schools.com/html/mov_bbb.mp4');
-        //source.setAttribute('type', 'video/mp4');
         videoElement.appendChild(source);
 
         // Auto-play video with some (unused) error handling

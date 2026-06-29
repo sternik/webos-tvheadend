@@ -50,26 +50,26 @@ export const AppContextProvider = ({ children }: { children: JSX.Element }) => {
     const [isAnimationsEnabled, setAnimationsEnabled] = useState<boolean>(true);
 
     const appContext: AppContext = {
-        menuState: menuState,
-        setMenuState: (value: boolean) => setMenuState(value),
-        appViewState: appViewState,
-        setAppViewState: (value: AppViewState) => setAppViewState(value),
-        locale: locale,
-        setLocale: (value: string) => setLocale(value),
-        tvhDataService: tvhDataService,
-        setTvhDataService: (value?: TVHDataService) => setTvhDataService(value),
-        epgData: epgData,
-        imageCache: imageCache,
-        currentChannelPosition: currentChannelPosition,
-        setCurrentChannelPosition: (value: number) => setCurrentChannelPosition(value),
-        currentRecordingPosition: currentRecordingPosition,
-        setCurrentRecordingPosition: (value: number) => setCurrentRecordingPosition(value),
-        appVisibilityState: appVisibilityState,
-        setAppVisibilityState: (value: AppVisibilityState) => setAppVisibilityState(value),
-        persistentAuthToken: persistentAuthToken,
-        setPersistentAuthToken: (value: string) => setPersistentAuthToken(value),
-        isAnimationsEnabled: isAnimationsEnabled,
-        setAnimationsEnabled: (value: boolean) => setAnimationsEnabled(value)
+        menuState,
+        setMenuState,
+        appViewState,
+        setAppViewState,
+        locale,
+        setLocale,
+        tvhDataService,
+        setTvhDataService,
+        epgData,
+        imageCache,
+        currentChannelPosition,
+        setCurrentChannelPosition,
+        currentRecordingPosition,
+        setCurrentRecordingPosition,
+        appVisibilityState,
+        setAppVisibilityState,
+        persistentAuthToken,
+        setPersistentAuthToken,
+        isAnimationsEnabled,
+        setAnimationsEnabled
     };
 
     return <AppContext.Provider value={appContext}>{children}</AppContext.Provider>;

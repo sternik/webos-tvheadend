@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useReducer, useRef } from 'react';
+import type EPGEvent from '../models/EPGEvent';
 import EPGUtils from '../utils/EPGUtils';
 import AppContext from '../AppContext';
 import '../styles/app.css';
@@ -12,8 +13,8 @@ const ChannelInfo = (props: { unmount: () => void }) => {
 
     const channel = epgData ? epgData.getChannel(currentChannelPosition) : null;
 
-    let currentEvent: any = null;
-    let nextEvent: any = null;
+    let currentEvent: EPGEvent | null = null;
+    let nextEvent: EPGEvent | null = null;
 
     if (channel) {
         const events = channel.getEvents();
@@ -130,7 +131,7 @@ const ChannelInfo = (props: { unmount: () => void }) => {
                     </div>
                     {nextEvent && (
                         <div className="ci-next">
-                            <span className="ci-nextLabel">Następny:</span>
+                            <span className="ci-nextLabel">Next:</span>
                             <span className="ci-nextTitle">{nextEvent.getTitle()}</span>
                             <span className="ci-nextTime">
                                 {EPGUtils.toTimeString(nextEvent.getStart(), locale)}

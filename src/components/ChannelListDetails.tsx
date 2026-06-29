@@ -62,7 +62,7 @@ const ChannelListDetails = (props: {
 
             {props.nextEvents.length > 0 && (
                 <div className="cld-next">
-                    <div className="cld-nextLabel">Następne</div>
+                    <div className="cld-nextLabel">Next</div>
                     <ul className="cld-list">{getEventList(props.nextEvents)}</ul>
                 </div>
             )}

@@ -5,7 +5,6 @@ import Player from './components/Player';
 import TVHSettings from './components/TVHSettings';
 import './styles/app.css';
 import AppContext, { AppVisibilityState } from './AppContext';
-//import EPGChannel from './models/EPGChannel';
 import StorageHelper from './utils/StorageHelper';
 import Menu, { MenuItem } from './components/Menu';
 
@@ -13,8 +12,6 @@ export enum AppViewState {
     TV,
     SETTINGS,
     RECORDINGS
-//    HELP,
-//    CONTACT
 }
 
 const App = () => {
@@ -28,7 +25,6 @@ const App = () => {
         tvhDataService,
         setTvhDataService,
         epgData,
-        //imageCache,
         setPersistentAuthToken,
         setAnimationsEnabled
     } = useContext(AppContext);
@@ -56,18 +52,6 @@ const App = () => {
             action: () => updateAppViewState(AppViewState.SETTINGS),
             isActive: appViewState === AppViewState.SETTINGS
         }
-//        {
-//            icon: 'denselist',
-//            label: 'Help',
-//            action: () => console.log('not yet available') /*action: () => updateAppViewState(AppViewState.HELP)*/,
-//            isActive: false
-//        },
-//        {
-//            icon: 'circle',
-//            label: 'Contact',
-//            action: () => console.log('not yet available') /*action: () => updateAppViewState(AppViewState.CONTACT)*/,
-//            isActive: false
-//        }
     ];
 
     const updateAppViewState = (appViewState: AppViewState) => {
@@ -91,9 +75,6 @@ const App = () => {
                 if (channels.length > 0) {
                     safePersistentAuthToken(channels[0].getStreamUrl());
                 }
-                // preload images
-                //preloadImages(channels);
-
                 // retrieve epg and update channels
                 tvhDataService.retrieveTVHEPG(0, (channels) => {
                     // note: channels are already updated as we are working on references here
@@ -146,25 +127,6 @@ const App = () => {
             setPersistentAuthToken(authParam.trim());
         }
     };
-
-    /**
-     * preload all images and set placeholders
-     * if images cannot be loaded
-     */
-    //const preloadImages = (channels: EPGChannel[]) => {
-    //    channels.forEach((channel) => {
-    //        const imageURL = channel.getImageURL();
-    //        // logo url is optional
-    //        if (!imageURL) {
-    //            return;
-    //        }
-    //        const img = new Image();
-    //        img.src = imageURL.toString();
-    //        img.onload = () => {
-    //            imageCache.set(imageURL, img);
-    //        };
-    //    });
-    //};
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
         const keyCode = event.keyCode;

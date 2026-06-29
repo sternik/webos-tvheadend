@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 
 import AppContext from '../AppContext';
 import '../styles/app.css';
 import ChannelListDetails from './ChannelListDetails';
-import EPGEvent from '../models/EPGEvent';
-import EPGChannel from '../models/EPGChannel';
+import type EPGChannel from '../models/EPGChannel';
+import type EPGEvent from '../models/EPGEvent';
 import EPGUtils from '../utils/EPGUtils';
 
 const CHANNEL_HEIGHT = 120;
@@ -131,7 +131,6 @@ const ChannelList = (props: {
                 console.log('ChannelList-keyPressed:', keyCode);
         }
 
-        if (!event.isPropagationStopped) return event;
     };
 
     const toggleRecording = () => {
@@ -155,7 +154,7 @@ const ChannelList = (props: {
 
     const handleClick = () => {
         setCurrentChannelPosition(channelPosRef.current);
-        doClose();
+        doClose(props.onSelect);
     };
 
     const scrollUp = () => {

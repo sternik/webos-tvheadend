@@ -36,7 +36,6 @@ const TV = () => {
     const audioTracksRef = useRef<AudioTrackList>();
     const textTracksRef = useRef<TextTrackList>();
 
-    //const [isVideoPlaying, setIsVideoPlaying] = useState(false);
     const [state, setState] = useState<State>(State.CHANNEL_INFO);
     const [channelNumberText, setChannelNumberText] = useState('');
 
@@ -126,8 +125,6 @@ const TV = () => {
                 console.log('TV-keyPressed:', keyCode);
         }
 
-        // pass unhandled events to parent
-        if (!event.isPropagationStopped()) return event;
     };
 
     const handleChannelInfoSwitch = () => {
@@ -263,23 +260,12 @@ const TV = () => {
         if (!videoElement) return;
 
         resetPlayer(videoElement);
-        //setIsVideoPlaying(false);
-
-        //const options = {
-        //    mediaTransportType: 'URI'
-        //};
-
-        // Convert the created object to JSON string and encode it.
-        //const mediaOption = encodeURI(JSON.stringify(options));
 
         // Add new source element
         const source = document.createElement('source');
 
         // Add attributes to the created source element for media content.
         source.setAttribute('src', dataUrl.toString());
-        //source.setAttribute('type', 'video/mp2t;mediaOption=' + mediaOption);
-        //source.setAttribute('src', 'https://www.w3schools.com/html/mov_bbb.mp4');
-        //source.setAttribute('type', 'video/mp4');
         videoElement.appendChild(source);
 
         // Auto-play video with some (unused) error handling
@@ -288,11 +274,8 @@ const TV = () => {
         if (playPromise !== undefined) {
             playPromise
                 .then()
-                //.then(() => setIsVideoPlaying(true))
                 .catch((error) => console.log('channel switched before it could be played', error));
-        } //else {
-            //setIsVideoPlaying(true);
-        //}
+        }
     };
 
     const getWidth = () => window.innerWidth;
@@ -395,14 +378,11 @@ const TV = () => {
             onKeyDown={handleKeyPress}
             onWheel={handleScrollWheel}
             onClick={handleClick}
-            /* className={isVideoPlaying ? 'tv playing' : 'tv loading'} */
             className="tv"
         >
             {channelNumberText !== '' && (
                 <ChannelHeader channelNumberText={channelNumberText} unmount={() => setChannelNumberText('')} />
             )}
-
-            {/*//insert*/}
 
             {state === State.CHANNEL_SETTINGS && (
                 <ChannelSettings

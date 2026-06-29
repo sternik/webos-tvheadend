@@ -26,16 +26,15 @@ const Icons: Record<string, React.ReactNode> = {
     )
 };
 
-let focusedIndexRef = 0;
-
 const Menu = (props: { items: MenuItem[]; unmount: () => void }) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [, setTick] = useState(0);
+    const focusedIndexRef = useRef(0);
 
     useLayoutEffect(() => {
         wrapperRef.current?.focus();
         const idx = props.items.findIndex(i => i.isActive);
-        focusedIndexRef = idx >= 0 ? idx : 0;
+        focusedIndexRef.current = idx >= 0 ? idx : 0;
         setTick(t => t + 1);
     }, []);
 
@@ -49,20 +48,20 @@ const Menu = (props: { items: MenuItem[]; unmount: () => void }) => {
                 case 33:
                     e.stopPropagation();
                     e.preventDefault();
-                    focusedIndexRef = focusedIndexRef > 0 ? focusedIndexRef - 1 : count - 1;
+                    focusedIndexRef.current = focusedIndexRef.current > 0 ? focusedIndexRef.current - 1 : count - 1;
                     setTick(t => t + 1);
                     break;
                 case 40:
                 case 34:
                     e.stopPropagation();
                     e.preventDefault();
-                    focusedIndexRef = focusedIndexRef < count - 1 ? focusedIndexRef + 1 : 0;
+                    focusedIndexRef.current = focusedIndexRef.current < count - 1 ? focusedIndexRef.current + 1 : 0;
                     setTick(t => t + 1);
                     break;
                 case 13:
                     e.stopPropagation();
                     e.preventDefault();
-                    props.items[focusedIndexRef]?.action();
+                    props.items[focusedIndexRef.current]?.action();
                     break;
                 case 461:
                 case 67:
@@ -97,7 +96,7 @@ const Menu = (props: { items: MenuItem[]; unmount: () => void }) => {
                 {props.items.map((item, i) => (
                     <div
                         key={i}
-                        className={`menu-item${item.isActive ? ' active' : ''}${focusedIndexRef === i ? ' focused' : ''}`}
+                        className={`menu-item${item.isActive ? ' active' : ''}${focusedIndexRef.current === i ? ' focused' : ''}`}
                         onClick={(e) => { e.stopPropagation(); item.action(); }}
                     >
                         <span className="menu-label">{item.label}</span>

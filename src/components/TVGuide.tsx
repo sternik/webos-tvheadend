@@ -45,10 +45,7 @@ const TVGuide = (props: {
         setTimeout(() => props.unmount(), 300);
     }, [closing, props.unmount]);
 
-    const getTimeFromX = (x: number) => timeLower + x * millisPerPixel;
     const getXFromTime = (time: number) => (time - timeLower) / millisPerPixel;
-
-    const getTopFromPosition = (pos: number) => pos * CHANNEL_ROW_HEIGHT - scrollYRef.current;
 
     const getVisibleChannels = () => {
         const first = Math.max(0, Math.floor(scrollYRef.current / CHANNEL_ROW_HEIGHT) - 1);
@@ -208,13 +205,18 @@ const TVGuide = (props: {
         setFocusedEvent(ev);
         focus();
 
-        window.addEventListener('keydown', (e: KeyboardEvent) => {
+        const handleWindowKeyDown = (e: KeyboardEvent) => {
             if (e.keyCode === 461 || e.keyCode === 66 || e.keyCode === 406) {
                 e.stopPropagation();
                 doClose();
             }
-        }, true);
-    }, []);
+        };
+        window.addEventListener('keydown', handleWindowKeyDown, true);
+
+        return () => {
+            window.removeEventListener('keydown', handleWindowKeyDown, true);
+        };
+    }, [doClose]);
 
     if (!epgData || !epgData.hasData()) return null;
 
@@ -222,12 +224,13 @@ const TVGuide = (props: {
     const now = EPGUtils.getNow();
     const nowX = getXFromTime(now);
     const timeLabels: number[] = [];
-    {
-        const start = Math.ceil(timeLower / TIME_LABEL_SPACING_MILLIS) * TIME_LABEL_SPACING_MILLIS;
-        for (let t = start; t <= timeUpper; t += TIME_LABEL_SPACING_MILLIS) {
-            timeLabels.push(t);
-        }
+    const start = Math.ceil(timeLower / TIME_LABEL_SPACING_MILLIS) * TIME_LABEL_SPACING_MILLIS;
+    for (let t = start; t <= timeUpper; t += TIME_LABEL_SPACING_MILLIS) {
+        timeLabels.push(t);
     }
+
+    const ch = focusedEvent ? epgData.getChannel(focusedChannel) : null;
+    const isRec = focusedEvent ? epgData.isRecording(focusedEvent) : false;
 
     return (
         <div
@@ -308,7 +311,7 @@ const TVGuide = (props: {
                         {/* Events */}
                         {visibleChannels.map(pos => {
                             const events = getVisibleEvents(pos);
-                            const isFocusedChannel = pos === focusedChannel;
+
                             return events.map(ev => {
                                 const isCurrent = ev.isCurrent();
                                 const isFocused = focusedEvent?.getId() === ev.getId();
@@ -351,32 +354,27 @@ const TVGuide = (props: {
 
             {/* Details pane */}
             <div className="epg-details">
-                {focusedEvent && (() => {
-                    const ch = epgData.getChannel(focusedChannel);
-                    const isRec = epgData.isRecording(focusedEvent);
-                    return (
-                        <div className="epg-details-content">
-                            <div className="epg-details-left">
-                                <div className="epg-details-channel">
-                                    {isRec && <span className="epg-rec-dot" />}
-                                    <span className="epg-details-ch-name">{ch?.getName()}</span>
-                                    <span className="epg-details-ch-num">#{ch?.getChannelID()}</span>
-                                </div>
-                                <div className="epg-details-title">{focusedEvent.getTitle()}</div>
-                                {focusedEvent.getSubTitle() && (
-                                    <div className="epg-details-subtitle">{focusedEvent.getSubTitle()}</div>
-                                )}
-                                <div className="epg-details-time">
-                                    {EPGUtils.toTimeFrameString(focusedEvent.getStart(), focusedEvent.getEnd(), locale)}
-                                </div>
-                                {focusedEvent.getDescription() && (
-                                    <div className="epg-details-desc">{focusedEvent.getDescription()}</div>
-                                )}
+                {focusedEvent ? (
+                    <div className="epg-details-content">
+                        <div className="epg-details-left">
+                            <div className="epg-details-channel">
+                                {isRec && <span className="epg-rec-dot" />}
+                                <span className="epg-details-ch-name">{ch?.getName()}</span>
+                                <span className="epg-details-ch-num">#{ch?.getChannelID()}</span>
                             </div>
+                            <div className="epg-details-title">{focusedEvent.getTitle()}</div>
+                            {focusedEvent.getSubTitle() && (
+                                <div className="epg-details-subtitle">{focusedEvent.getSubTitle()}</div>
+                            )}
+                            <div className="epg-details-time">
+                                {EPGUtils.toTimeFrameString(focusedEvent.getStart(), focusedEvent.getEnd(), locale)}
+                            </div>
+                            {focusedEvent.getDescription() && (
+                                <div className="epg-details-desc">{focusedEvent.getDescription()}</div>
+                            )}
                         </div>
-                    );
-                })()}
-                {!focusedEvent && (
+                    </div>
+                ) : (
                     <div className="epg-details-empty">
                         Press OK to switch channel
                     </div>

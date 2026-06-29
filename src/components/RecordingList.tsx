@@ -372,7 +372,7 @@ const RecordingList = (props: {
         const keyCode = event.keyCode;
 
         if (state === State.DELETE_DIALOG || state === State.CANCEL_DIALOG) {
-            return event;
+            return;
         }
 
         switch (keyCode) {
@@ -416,8 +416,7 @@ const RecordingList = (props: {
                 console.log('RecordingList-keyPressed:', keyCode);
         }
 
-        // pass unhandled events to parent
-        if (!event.isPropagationStopped) return event;
+
     };
 
     const deleteRecording = (event: EPGEvent | undefined) => {
