@@ -7,6 +7,7 @@ import { AppViewState } from '../App';
 import RecordingList from './RecordingList';
 import EPGEvent from '../models/EPGEvent';
 import EPGChannelRecording from '../models/EPGChannelRecording';
+import { useVideoElement } from '../hooks/useVideoElement';
 
 export enum State {
     PLAYER = 'player',
@@ -27,67 +28,66 @@ const Player = () => {
         epgData
     } = useContext(AppContext);
 
-    const tvWrapper = useRef<HTMLDivElement>(null);
-    const video = useRef<HTMLVideoElement>(null);
-    const audioTracksRef = useRef<AudioTrackList>();
-    const textTracksRef = useRef<TextTrackList>();
-    const [recordings, setRecordings] = useState<EPGChannelRecording[]>([]);
+    const {
+        videoRef,
+        audioTracksRef,
+        textTracksRef,
+        getMediaElement,
+        resetPlayer,
+        changeSource,
+        setAudioTracks,
+        setTextTracks,
+        getWidth,
+        getHeight
+    } = useVideoElement();
 
+    const [recordings, setRecordings] = useState<EPGChannelRecording[]>([]);
     const [state, setState] = useState<State>(State.PLAYER);
+    const tvWrapper = useRef<HTMLDivElement>(null);
 
     const focus = () => tvWrapper.current?.focus();
+    const getCurrentChannel = () => recordings[currentRecordingPosition];
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
-        // in case we are in menu state we don't handle any keypress
-        if (menuState || state == State.RECORDINGS_LIST) {
-            return;
-        }
+        if (menuState || state === State.RECORDINGS_LIST) return;
         const keyCode = event.keyCode;
 
         switch (keyCode) {
-            case 34: // programm down
+            case 34:
                 event.stopPropagation();
-                // channel down
-                if (currentRecordingPosition === 0) {
-                    return;
-                }
+                if (currentRecordingPosition === 0) return;
                 changeChannelPosition(currentRecordingPosition - 1);
                 break;
-            case 40: // arrow down
+            case 40:
                 event.stopPropagation();
                 setState(State.RECORDINGS_LIST);
                 break;
-            case 33: // programm up
+            case 33:
                 event.stopPropagation();
-                // channel up
-                if (currentRecordingPosition === recordings.length - 1) {
-                    return;
-                }
+                if (currentRecordingPosition === recordings.length - 1) return;
                 changeChannelPosition(currentRecordingPosition + 1);
                 break;
-            case 67: // 'c'
-            case 38: // arrow up
+            case 67:
+            case 38:
                 event.stopPropagation();
                 setState(State.RECORDINGS_LIST);
                 break;
             case 13: {
-                // ok button ->show/disable channel info
                 event.stopPropagation();
                 handleChannelInfoSwitch();
                 break;
             }
-            case 405: // yellow button
-            case 89: //'y'
+            case 405:
+            case 89:
                 event.stopPropagation();
                 handleChannelSettingsSwitch();
                 break;
-            case 461: // backbutton
+            case 461:
                 event.stopPropagation();
                 setState(State.PLAYER);
                 break;
-            case 404: // green button
-            case 71: //'g'
-                // note that this key event should be passed to app
+            case 404:
+            case 71:
                 setState(State.PLAYER);
                 break;
             default:
@@ -100,43 +100,25 @@ const Player = () => {
     };
 
     const handleChannelSettingsSwitch = () => {
-        // if we don't have any audio tracks or text tracks we don't get into channel settings state
-        if (!audioTracksRef.current && !textTracksRef.current) {
-            return;
-        }
-
+        if (!audioTracksRef.current && !textTracksRef.current) return;
         state !== State.RECORDINGS_SETTINGS ? setState(State.RECORDINGS_SETTINGS) : setState(State.PLAYER);
     };
 
-    const handleScrollWheel = () => {
-        setState(State.RECORDINGS_LIST);
-    };
-
-    const handleClick = () => {
-        handleChannelInfoSwitch();
-    };
+    const handleScrollWheel = () => setState(State.RECORDINGS_LIST);
+    const handleClick = () => handleChannelInfoSwitch();
 
     const deleteRecording = (event: EPGEvent) => {
-        if (!event) {
-            return;
-        }
-        // if delete event is current play event stop player first
+        if (!event) return;
         if (event === getCurrentChannel()?.getEvents()[0]) {
-            const video = getMediaElement();
-            video && resetPlayer(video);
+            const vid = getMediaElement();
+            vid && resetPlayer(vid);
             setCurrentRecordingPosition(-1);
         }
-
         tvhDataService?.deleteRec(event, (newrecordings) => setRecordings(newrecordings), persistentAuthToken);
     };
 
     const cancelRecording = (event: EPGEvent) => {
-        console.log(event);
-
-        if (!event) {
-            return;
-        }
-
+        if (!event) return;
         tvhDataService?.cancelRec(
             event,
             (newrecordings) => {
@@ -149,16 +131,9 @@ const Player = () => {
         );
     };
 
-    const getMediaElement = () => video.current;
-
     const changeChannelPosition = (newChannelPosition: number) => {
-        if (newChannelPosition === currentRecordingPosition) {
-            return;
-        }
+        if (newChannelPosition === currentRecordingPosition) return;
         setCurrentRecordingPosition(newChannelPosition);
-
-        // store last used recording
-        //StorageHelper.setLastChannelIndex(newChannelPosition);
     };
 
     const handleLoadedMetaData = () => {
@@ -167,62 +142,13 @@ const Player = () => {
 
         const audioTracks = videoElement.audioTracks;
         const textTracks = videoElement.textTracks;
-
         setAudioTracks(audioTracks);
         setTextTracks(textTracks);
     };
 
-    const setAudioTracks = (audioTracks: AudioTrackList | undefined) => {
-        audioTracksRef.current = audioTracks;
-    };
-
-    const setTextTracks = (textTracks: TextTrackList | undefined) => {
-        textTracksRef.current = textTracks;
-    };
-
-    const resetPlayer = (videoElement: HTMLVideoElement) => {
-        setAudioTracks(undefined);
-        setTextTracks(undefined);
-
-        // Remove all source elements
-        while (videoElement.firstChild) {
-            videoElement.removeChild(videoElement.firstChild);
-        }
-
-        // Reset video
-        videoElement.load();
-    };
-
-    const changeSource = (dataUrl: URL) => {
-        const videoElement = getMediaElement();
-        if (!videoElement) return;
-
-        resetPlayer(videoElement);
-
-        // Add new source element
-        const source = document.createElement('source');
-
-        // Add attributes to the created source element for media content.
-        source.setAttribute('src', dataUrl.toString());
-        videoElement.appendChild(source);
-
-        // Auto-play video with some (unused) error handling
-        const playPromise = videoElement.play();
-        // workarund for promise not beeing returned in webos 3.x
-        if (playPromise !== undefined) {
-            playPromise.catch((error) => console.log('recording switched before it could be played', error));
-        }
-    };
-
-    const getWidth = () => window.innerWidth;
-    const getHeight = () => window.innerHeight;
-    const getCurrentChannel = () => recordings[currentRecordingPosition];
-
     const updateStreamSource = (streamUrl: URL) => {
-        // show the channel info, if the channel was changed
         setState(State.PLAYER_INFO);
-
-        changeSource(streamUrl);
+        changeSource(streamUrl, 'recording');
     };
 
     useEffect(() => {
@@ -237,14 +163,11 @@ const Player = () => {
             const videoElement = getMediaElement();
             if (!videoElement) return;
             resetPlayer(videoElement);
-
-            // reset current recording position
             setCurrentRecordingPosition(-1);
         };
     }, []);
 
     useEffect(() => {
-        // change channel in case we have channels retrieved and channel position changed
         if (recordings.length > 0) {
             const currentChannel = getCurrentChannel();
             if (currentChannel && currentChannel.getChannelID() !== currentRecordingPosition) {
@@ -254,30 +177,20 @@ const Player = () => {
     }, [currentRecordingPosition]);
 
     useEffect(() => {
-        // request focus if none of the other components are active
-        if (state === State.PLAYER) {
-            focus();
-        }
+        if (state === State.PLAYER) focus();
     }, [state]);
 
     useEffect(() => {
-        // if the channel info is shown, also show the current channel number
-        if (appViewState === AppViewState.RECORDINGS) {
-            focus();
-        }
+        if (appViewState === AppViewState.RECORDINGS) focus();
     }, [appViewState, menuState]);
-    /**
-     * handle app state changes
-     */
+
     useEffect(() => {
-        // state changed to focus -> refocus
         if (appVisibilityState === AppVisibilityState.FOCUSED) {
             console.log('Player: changed to focused');
             setState(State.PLAYER_INFO);
             focus();
         }
 
-        // state changed to background -> stop playback
         if (appVisibilityState === AppVisibilityState.BACKGROUND) {
             console.log('Player: changed to background');
             const videoElement = getMediaElement();
@@ -285,15 +198,10 @@ const Player = () => {
             resetPlayer(videoElement);
         }
 
-        // state changed to foreground -> start playback
         if (appVisibilityState === AppVisibilityState.FOREGROUND) {
             console.log('Player: changed to foreground');
             const currentChannel = getCurrentChannel();
-            // manually call update because we want to start the channel as we
-            // have in the context -> no context change -> no effect
-            // also we only do it if video has no source attached because on
-            // first mount the source gets attached by currentChannelPosition effect
-            currentChannel && !video.current?.firstChild && updateStreamSource(currentChannel.getStreamUrl());
+            currentChannel && !videoRef.current?.firstChild && updateStreamSource(currentChannel.getStreamUrl());
             focus();
         }
     }, [appVisibilityState]);
@@ -330,7 +238,7 @@ const Player = () => {
 
             <video
                 id="myVideo"
-                ref={video}
+                ref={videoRef}
                 width={getWidth()}
                 height={getHeight()}
                 preload="none"
