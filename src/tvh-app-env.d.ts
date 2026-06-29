@@ -1,3 +1,5 @@
+declare var global: typeof globalThis;
+
 interface AudioTrack {
     enabled: boolean;
     readonly id: string;

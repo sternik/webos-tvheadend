@@ -104,7 +104,7 @@ const TVGuide = (props: {
                 setFocusedChannel(newPos);
                 scrollToChannel(newPos);
                 const ev = epgData?.getEventAtTimestamp(newPos, EPGUtils.getNow());
-                setFocusedEvent(ev);
+                setFocusedEvent(ev ?? null);
                 break;
             }
             case 40: {
@@ -114,7 +114,7 @@ const TVGuide = (props: {
                 setFocusedChannel(newPos);
                 scrollToChannel(newPos);
                 const ev = epgData?.getEventAtTimestamp(newPos, EPGUtils.getNow());
-                setFocusedEvent(ev);
+                setFocusedEvent(ev ?? null);
                 break;
             }
             case 37: {
@@ -202,7 +202,7 @@ const TVGuide = (props: {
     useEffect(() => {
         scrollToChannel(focusedChannelRef.current);
         const ev = epgData?.getEventAtTimestamp(focusedChannelRef.current, EPGUtils.getNow());
-        setFocusedEvent(ev);
+        setFocusedEvent(ev ?? null);
         focus();
 
         const handleWindowKeyDown = (e: KeyboardEvent) => {

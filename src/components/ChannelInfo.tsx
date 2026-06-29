@@ -7,7 +7,7 @@ import '../styles/app.css';
 const ChannelInfo = (props: { unmount: () => void }) => {
     const { locale, epgData, currentChannelPosition } = useContext(AppContext);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [tick, forceUpdate] = useReducer(x => x + 1, 0);
     const [closing, setClosing] = React.useState(false);
 

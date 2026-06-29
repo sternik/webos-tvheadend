@@ -33,19 +33,19 @@ const TVHSettings = (props: { unmount: () => void }) => {
         props.unmount();
     };
 
-    const handleUserChange = (input: HTMLInputElement) => {
+    const handleUserChange = (input: { value: string }) => {
         setServiceParms({ ...serviceParms, user: input.value });
         setIsValid(false);
         setConnectButtonEnabled(input.value.length > 0);
     };
 
-    const handlePasswordChange = (input: HTMLInputElement) => {
+    const handlePasswordChange = (input: { value: string }) => {
         setServiceParms({ ...serviceParms, password: input.value });
         setIsValid(false);
         setConnectButtonEnabled(input.value.length > 0);
     };
 
-    const handleUrlChange = (input: HTMLInputElement) => {
+    const handleUrlChange = (input: { value: string }) => {
         setServiceParms({ ...serviceParms, tvhUrl: input.value });
         setIsValid(false);
         setConnectButtonEnabled(input.value.length > 0);
@@ -101,35 +101,35 @@ const TVHSettings = (props: { unmount: () => void }) => {
                 <Input
                     value={serviceParms.tvhUrl}
                     type="url"
-                    onChange={handleUrlChange}
+                    onChange={handleUrlChange as unknown as React.FormEventHandler<HTMLElement>}
                     placeholder="http://192.168.0.10:9981/"
                 />
                 <Input
                     className="username"
                     value={serviceParms.user}
                     type="text"
-                    onChange={handleUserChange}
+                    onChange={handleUserChange as unknown as React.FormEventHandler<HTMLElement>}
                     placeholder="User (Optional)"
                 />
                 <Input
                     className="password"
                     value={serviceParms.password}
                     type="password"
-                    onChange={handlePasswordChange}
+                    onChange={handlePasswordChange as unknown as React.FormEventHandler<HTMLElement>}
                     placeholder="Password (Optional)"
                 />
                 <br /> <br />
                 {!isLoading && (
                     <Button
                         disabled={!isConnectButtonEnabled}
-                        backgroundOpacity="lightTranslucent"
+                        backgroundOpacity="opaque"
                         onClick={handleConnectionTest}
                     >
                         Connect
                     </Button>
                 )}
                 {isLoading && <Spinner component={Panel} size="medium" />}
-                <Button disabled={!isValid} backgroundOpacity="lightTranslucent" onClick={handleSave}>
+                <Button disabled={!isValid} backgroundOpacity="opaque" onClick={handleSave}>
                     Save
                 </Button>
                 <br /> <br />

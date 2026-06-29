@@ -15,7 +15,7 @@ const ChannelSettings = (props: {
     const channelSettingsWrapper = useRef<HTMLDivElement>(null);
     const selectedAudioTrack = useRef(0);
     const selectedTextTrack = useRef(0);
-    const timeoutReference = useRef<NodeJS.Timeout | null>(null);
+    const timeoutReference = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const handleTextChange = (event: { value: number }) => {
         updateAutomaticUnmount();

@@ -32,7 +32,7 @@ const TV = () => {
     } = useContext(AppContext);
 
     const tvWrapper = useRef<HTMLDivElement>(null);
-    const timeoutChangeChannel = useRef<NodeJS.Timeout | null>(null);
+    const timeoutChangeChannel = useRef<ReturnType<typeof setTimeout> | null>(null);
     const {
         videoRef,
         audioTracksRef,
