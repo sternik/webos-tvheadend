@@ -1,0 +1,35 @@
+name: Build & Release IPK
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: npm install -g @webos-tools/cli
+
+      - run: ares-package build service
+
+      - name: Upload IPK to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(jq -r .version public/appinfo.json)
+          IPK="com.tvh.app_${VERSION}_all.ipk"
+          gh release upload "${{ github.event.release.tag_name }}" "$IPK" --clobber
